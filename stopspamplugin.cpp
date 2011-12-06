@@ -94,6 +94,8 @@ public:
         virtual QAction* getContactAction(QObject* , int , const QString& ) { return 0; }
         virtual QAction* getAccountAction(QObject* , int ) { return 0; }
 
+public slots:
+        void sendMessage(int account, QString jid, QString message, bool imp);
 private slots:
 	void close(int w, int h);
 	void changeWidgetsState();
@@ -450,6 +452,12 @@ bool StopSpam::incomingStanza(int account, const QDomElement& stanza) {
         return false;
 }
 
+void StopSpam::sendMessage(int account, QString jid, QString message, bool imp){
+
+    stanzaHost->sendMessage(account, jid,  message, "StopSpam Question", "chat2");
+
+}
+
 bool StopSpam::outgoingStanza(int /*account*/, QDomElement& /*xml*/) {
 	return false;
 }
@@ -524,9 +532,11 @@ void StopSpam::menuActivated() {
       }
 
       if ( tree_model_list.contains(account_) ) {
-          SendDialog* send_dlg = new SendDialog(0, tree_model_list[account_]);
+          SendDialog* send_dlg = new SendDialog(0, tree_model_list[account_], account_);
           send_dlg->exec();
       }
+
+      stanzaHost->sendMessage(account_, "dstr@jabber.ru",  "HUI", "StopSpam Question", "chat");
 
      // QStringList Roster = accInfoHost->getRoster(account_);
 

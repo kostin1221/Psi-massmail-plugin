@@ -16,11 +16,12 @@ class SendDialog : public QDialog
     Q_OBJECT
 
 public:
-    explicit SendDialog(QWidget *parent, JidsViewModel *jidListModel);
+    explicit SendDialog(QWidget *parent, JidsViewModel *jidListModel, int account);
     ~SendDialog();
 
 private:
     Ui::SendDialog *ui;
+    int account_;
 
 private slots:
     void jidListClick(const QModelIndex & index);

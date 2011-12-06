@@ -1,12 +1,13 @@
 #include "senddialog.h"
 #include "ui_senddialog.h"
 
-SendDialog::SendDialog(QWidget *parent, JidsViewModel *jidListModel) :
+SendDialog::SendDialog(QWidget *parent, JidsViewModel *jidListModel, int account) :
     QDialog(parent),
     ui(new Ui::SendDialog)
 {
     ui->setupUi(this);
     ui->jidsView->setModel(jidListModel);
+    account_ = account;
 }
 
 SendDialog::~SendDialog()
