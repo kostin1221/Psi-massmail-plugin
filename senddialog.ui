@@ -29,28 +29,27 @@
     <set>QDialogButtonBox::Cancel|QDialogButtonBox::Ok</set>
    </property>
   </widget>
-  <widget class="QListWidget" name="listWidget">
+  <widget class="QTreeView" name="jidsView">
    <property name="geometry">
     <rect>
-     <x>40</x>
-     <y>40</y>
-     <width>401</width>
-     <height>271</height>
+     <x>0</x>
+     <y>0</y>
+     <width>511</width>
+     <height>351</height>
     </rect>
    </property>
-   <item>
-    <property name="text">
-     <string>gf</string>
-    </property>
-   </item>
-   <item>
-    <property name="text">
-     <string>jkjk</string>
-    </property>
-    <property name="flags">
-     <set>NoItemFlags</set>
-    </property>
-   </item>
+   <property name="editTriggers">
+    <set>QAbstractItemView::NoEditTriggers</set>
+   </property>
+   <property name="alternatingRowColors">
+    <bool>true</bool>
+   </property>
+   <property name="sortingEnabled">
+    <bool>true</bool>
+   </property>
+   <attribute name="headerVisible">
+    <bool>false</bool>
+   </attribute>
   </widget>
  </widget>
  <resources/>
@@ -87,5 +86,24 @@
     </hint>
    </hints>
   </connection>
+  <connection>
+   <sender>jidsView</sender>
+   <signal>clicked(QModelIndex)</signal>
+   <receiver>SendDialog</receiver>
+   <slot>jidListClick(QModelIndex)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>255</x>
+     <y>175</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>328</x>
+     <y>212</y>
+    </hint>
+   </hints>
+  </connection>
  </connections>
+ <slots>
+  <slot>jidListClick(QModelIndex)</slot>
+ </slots>
 </ui>

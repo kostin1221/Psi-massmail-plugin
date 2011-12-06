@@ -19,6 +19,7 @@
  */
 
 #include <QAction>
+#include <QStandardItemModel>
 
 #include "psiplugin.h"
 #include "optionaccessor.h"
@@ -41,6 +42,9 @@
 #include "menuaccessor.h"
 
 #include "ui_options.h"
+#include "senddialog.h"
+#include "jiditemmodel.h"
+
 #include "deferredstanzasender.h"
 
 #define cVer "0.5.3"
@@ -97,6 +101,8 @@ private slots:
         void menuActivated();
 
 private:
+
+        QHash<int, JidsViewModel *> tree_model_list;
 
 	bool enabled;
 	OptionAccessingHost* psiOptions;        
@@ -214,13 +220,44 @@ bool StopSpam::incomingStanza(int account, const QDomElement& stanza) {
                 QDomElement query = stanza.firstChildElement("query");
                 if(!query.isNull()
                         && query.attribute("xmlns") == "jabber:iq:roster") {
-                    qDebug() << "ROSTER ROSTER";
-                        QDomElement child = query.firstChildElement("item");
 
+                        QDomElement child = query.firstChildElement("item");
+                        JidsViewModel *jidsModel = new JidsViewModel();
+                        QStandardItem *rootItem = new QStandardItem(tr("Root")); //Сюда попадают юзеры без группы
+                        rootItem->setCheckable(true);
+                        jidsModel->appendRow(rootItem);
+
+                        QStandardItem *groupItem;
                         while ( !child.isNull() ) {
-                            qDebug() << child.attribute("jid");
+                            QDomElement group = child.firstChildElement("group");
+
+                            if ( !group.isNull() ){  //Если у юзера есть группа
+                                QString groupName = group.text();
+                                QList<QStandardItem *> items = jidsModel->findItems(groupName); //Пытаемся найти группу, если были контакты с такой группой
+                                if (items.count() > 0){
+                                    groupItem = items[0];
+
+                                }   else {
+                                    groupItem = new QStandardItem(groupName);
+                                    groupItem->setCheckable(true);
+                                    jidsModel->appendRow(groupItem);
+                                }
+                            } else {
+                                groupItem = rootItem;  //По умолчанию - кидаем в корень
+                            }
+
+                            QStandardItem *clientItem = new QStandardItem(child.attribute("name"));
+                            clientItem->setData(child.attribute("jid"), Qt::EditRole);
+                            clientItem->setCheckable(true);
+                            groupItem->appendRow(clientItem);
+
+                            //qDebug() << "Group: " << child.attribute("jid");
                             child = child.nextSiblingElement("item");
                         }
+
+                        tree_model_list[account] = jidsModel;
+
+
                         /*QStringList Roster = accInfoHost->getRoster(account);
                         QStringList UnblockedList = Unblocked.split("\n");
                         while(!Roster.isEmpty()) {
@@ -477,20 +514,25 @@ QList < QVariantHash > StopSpam::getContactMenuParam() {
 }
 
 void StopSpam::menuActivated() {
-  /*  if(!enabled) {
-                    return;
-    }*/
+    /*  if(!enabled) {
+                      return;
+      }*/
 
-    int account_ = sender()->property("account").toInt();
-    if(accInfoHost->getStatus(account_) == "offline") {
-            return;
-    }
+      int account_ = sender()->property("account").toInt();
+      if(accInfoHost->getStatus(account_) == "offline") {
+              return;
+      }
 
-    QStringList Roster = accInfoHost->getRoster(account_);
+      if ( tree_model_list.contains(account_) ) {
+          SendDialog* send_dlg = new SendDialog(0, tree_model_list[account_]);
+          send_dlg->exec();
+      }
 
- qDebug() << Roster;
+     // QStringList Roster = accInfoHost->getRoster(account_);
 
-    qDebug() << "menu";
+  // qDebug() << Roster;
+
+  //    qDebug() << "menu";
 }
 
 
