@@ -454,7 +454,11 @@ bool StopSpam::incomingStanza(int account, const QDomElement& stanza) {
 
 void StopSpam::sendMessage(int account, QString jid, QString message, bool imp){
 
-    stanzaHost->sendMessage(account, jid,  message, "StopSpam Question", "chat2");
+    QString type;
+    if (imp) {
+        type = "impchat";
+    } else type = "chat";
+    stanzaHost->sendMessage(account, jid,  message, QString::fromUtf8("Рассылка сообщений"), type);
 
 }
 
@@ -463,22 +467,7 @@ bool StopSpam::outgoingStanza(int /*account*/, QDomElement& /*xml*/) {
 }
 
 bool StopSpam::processOutgoingMessage(int acc, const QString &fromJid, QString &body, const QString &type, QString &/*subject*/) {
-        /*if(enabled && type != "groupchat" && !body.isEmpty()) {
-		QString bareJid;
-		if(contactInfo->isPrivate(acc, fromJid)) {
-			bareJid = fromJid;
-		}
-		else {
-			bareJid =  fromJid.split("/").first();
-			if(contactInfo->inList(acc, bareJid))
-				return false;
-		}
-		if(!Unblocked.split("\n").contains(bareJid, Qt::CaseInsensitive)) {
-			Unblocked += bareJid + "\n";
-			psiOptions->setPluginOption(constUnblocked, QVariant(Unblocked));
-			psiOptions->setPluginOption(constLastUnblock, QVariant(QDate::currentDate().toString("yyyyMMdd")));
-		}
-        }*/
+
 	return false;
 }
 
@@ -503,7 +492,6 @@ QList < QVariantHash > StopSpam::getAccountMenuParam() {
     QList< QVariantHash > l;
     QVariantHash hash;
     hash["name"] = QVariant(tr("Mass mailing2!"));
-    //hash["icon"] = QVariant(QString("chessplugin/chess"));
     hash["reciver"] = qVariantFromValue(qobject_cast<QObject *>(this));
     hash["slot"] = QVariant(SLOT(menuActivated()));
     l.push_back(hash);
@@ -536,7 +524,7 @@ void StopSpam::menuActivated() {
           send_dlg->exec();
       }
 
-      stanzaHost->sendMessage(account_, "dstr@jabber.ru",  "HUI", "StopSpam Question", "chat");
+  //    stanzaHost->sendMessage(account_, "dstr@jabber.ru",  "HUI", "StopSpam Question", "chat2");
 
      // QStringList Roster = accInfoHost->getRoster(account_);
 
