@@ -9,5 +9,5 @@ SOURCES += massmailingplugin.cpp \
 HEADERS += \
     senddialog.h \
     jiditemmodel.h
-FORMS += options.ui \
+FORMS += \
     senddialog.ui
