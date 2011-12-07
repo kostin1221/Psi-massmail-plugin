@@ -42,11 +42,8 @@
 #include "contactinfoaccessor.h"
 #include "menuaccessor.h"
 
-#include "ui_options.h"
 #include "senddialog.h"
 #include "jiditemmodel.h"
-
-#include "deferredstanzasender.h"
 
 #define cVer "0.1"
 
@@ -120,7 +117,6 @@ private:
 	int Width;
 
 	QPointer<QWidget> options_;
-	Ui::Options ui_;
 };
 
 Q_EXPORT_PLUGIN(MassMailing);
