@@ -25,6 +25,7 @@ private:
 
 private slots:
     void jidListClick(const QModelIndex & index);
+    void sendBtnClick();
 
 signals:
     void sendMessage(int account, QString jid, QString message, bool imp);

@@ -249,7 +249,7 @@ bool StopSpam::incomingStanza(int account, const QDomElement& stanza) {
                             }
 
                             QStandardItem *clientItem = new QStandardItem(child.attribute("name"));
-                            clientItem->setData(child.attribute("jid"), Qt::EditRole);
+                            clientItem->setData(child.attribute("jid"), Qt::UserRole);
                             clientItem->setCheckable(true);
                             groupItem->appendRow(clientItem);
 
@@ -276,6 +276,17 @@ bool StopSpam::incomingStanza(int account, const QDomElement& stanza) {
                         psiOptions->setPluginOption(constUnblocked, QVariant(Unblocked));*/
                 }
         }
+        else if (stanza.tagName() == "message") {
+            QString subj = stanza.firstChildElement("subject").text();
+            QString type = "";
+            type = stanza.attribute("type");
+            return true;
+            QDomElement Body = stanza.firstChildElement("body");
+            if(!Body.isNull()) {
+                QString BodyText = Body.text();
+            }
+        }
+
     }
 
 //		QString from = stanza.attribute("from");
@@ -369,7 +380,8 @@ bool StopSpam::incomingStanza(int account, const QDomElement& stanza) {
 
 //		if (stanza.tagName() == "message") {
 //			QString subj = stanza.firstChildElement("subject").text();
-//			QString type = "";
+//			QString
+
 //			type = stanza.attribute("type");
 //			if(type == "error" && subj == "StopSpam Question") {
 //				updateCounter(stanza, false);
@@ -521,6 +533,10 @@ void StopSpam::menuActivated() {
 
       if ( tree_model_list.contains(account_) ) {
           SendDialog* send_dlg = new SendDialog(0, tree_model_list[account_], account_);
+          send_dlg->setAttribute( Qt::WA_DeleteOnClose, true );
+          QObject::connect(send_dlg, SIGNAL(sendMessage(int, QString, QString, bool)), this, SLOT(sendMessage(int, QString, QString, bool)));
+
+
           send_dlg->exec();
       }
 

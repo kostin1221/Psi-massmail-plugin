@@ -19,25 +19,26 @@ void SendDialog::jidListClick(const QModelIndex & index){
     QModelIndexList mdllist = index.model()->match( index.model()->index(0,0), Qt::CheckStateRole, 2, -1, Qt::MatchRecursive | Qt::MatchExactly );
 
     for (int i = 0; i < mdllist.size(); ++i) {
-        QStandardItem *item = static_cast<QStandardItem*>(mdllist.at(i).internalPointer());
-        qDebug() << item->data(Qt::DisplayRole);
+        //QStandardItem *item = static_cast<QStandardItem*>(mdllist.at(i).internalPointer());
+        qDebug() << mdllist.at(i).data(Qt::UserRole);
+        //qDebug() << item->data(Qt::DisplayRole);
       //  ui->jidsView->g
 
-        //    cout << "Found Jane at position " << i << endl;
     }
-   /* QVariant checked = index.data(Qt::CheckStateRole);
-
-    QAbstractItemModel *mdl =  index.model();
-    if (mdl->hasChildren(index)){
-        for( int i = 0; i < mdl->rowCount() ; i++ ) {
-            QModelIndex childIndex = mdl->index( i, 0, index );
-
-            mdl->itemFromIndex(childIndex)->setData(checked, Qt::CheckStateRole);
-          //  static_cast<QStandardItem *>( childIndex.internalPointer() )->setData(checked, Qt::CheckStateRole);
-        }
-    }*/
-
-    //qDebug() << index.data(Qt::CheckStateRole);
-    //qDebug() << index.data(Qt::EditRole);
 }
 
+void SendDialog::sendBtnClick(){
+
+    QModelIndexList mdllist = ui->jidsView->model()->match(   ui->jidsView->model()->index(0,0), Qt::CheckStateRole, 2, -1, Qt::MatchRecursive | Qt::MatchExactly );
+
+    for (int i = 0; i < mdllist.size(); ++i) {
+        //QStandardItem *item = static_cast<QStandardItem*>(mdllist.at(i).internalPointer());
+        QString jid = mdllist.at(i).data(Qt::UserRole).toString();
+        if ( jid.indexOf( "@" ) ){
+            sendMessage(account_, jid, ui->messageEditor->toPlainText(), ui->srochnoChk->checkState() == 2);
+            //qDebug() << jid;
+        }
+
+    }
+    close();
+}
