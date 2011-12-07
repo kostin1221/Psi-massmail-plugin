@@ -220,62 +220,46 @@ void MassMailing::setContactInfoAccessingHost(ContactInfoAccessingHost *host) {
 bool MassMailing::incomingStanza(int account, const QDomElement& stanza) {
     if (enabled) {
         if(stanza.tagName() == "iq") {
-                QDomElement query = stanza.firstChildElement("query");
-                if(!query.isNull()
-                        && query.attribute("xmlns") == "jabber:iq:roster") {
+            QDomElement query = stanza.firstChildElement("query");
+            if(!query.isNull()
+                && query.attribute("xmlns") == "jabber:iq:roster") {
 
-                        QDomElement child = query.firstChildElement("item");
-                        JidsViewModel *jidsModel = new JidsViewModel();
-                        QStandardItem *rootItem = new QStandardItem(tr("Root")); //Сюда попадают юзеры без группы
-                        rootItem->setCheckable(true);
-                        jidsModel->appendRow(rootItem);
+                QDomElement child = query.firstChildElement("item");
+                JidsViewModel *jidsModel = new JidsViewModel();
+                QStandardItem *rootItem = new QStandardItem(tr("Root")); //Сюда попадают юзеры без группы
+                rootItem->setCheckable(true);
+                jidsModel->appendRow(rootItem);
 
-                        QStandardItem *groupItem;
-                        while ( !child.isNull() ) {
-                            QDomElement group = child.firstChildElement("group");
+                QStandardItem *groupItem;
+                while ( !child.isNull() ) {
+                    QDomElement group = child.firstChildElement("group");
 
-                            if ( !group.isNull() ){  //Если у юзера есть группа
-                                QString groupName = group.text();
-                                QList<QStandardItem *> items = jidsModel->findItems(groupName); //Пытаемся найти группу, если были контакты с такой группой
-                                if (items.count() > 0){
-                                    groupItem = items[0];
+                    if ( !group.isNull() ){  //Если у юзера есть группа
+                        QString groupName = group.text();
+                        QList<QStandardItem *> items = jidsModel->findItems(groupName); //Пытаемся найти группу, если были контакты с такой группой
+                        if (items.count() > 0){
+                            groupItem = items[0];
 
-                                }   else {
-                                    groupItem = new QStandardItem(groupName);
-                                    groupItem->setCheckable(true);
-                                    jidsModel->appendRow(groupItem);
-                                }
-                            } else {
-                                groupItem = rootItem;  //По умолчанию - кидаем в корень
-                            }
-
-                            QStandardItem *clientItem = new QStandardItem(child.attribute("name"));
-                            clientItem->setData(child.attribute("jid"), Qt::UserRole);
-                            clientItem->setCheckable(true);
-                            groupItem->appendRow(clientItem);
-
-                            //qDebug() << "Group: " << child.attribute("jid");
-                            child = child.nextSiblingElement("item");
+                        }   else {
+                            groupItem = new QStandardItem(groupName);
+                            groupItem->setCheckable(true);
+                            jidsModel->appendRow(groupItem);
                         }
+                    } else {
+                        groupItem = rootItem;  //По умолчанию - кидаем в корень
+                    }
 
-                        tree_model_list[account] = jidsModel;
+                    QStandardItem *clientItem = new QStandardItem(child.attribute("name"));
+                    clientItem->setData(child.attribute("jid"), Qt::UserRole);
+                    clientItem->setCheckable(true);
+                    groupItem->appendRow(clientItem);
 
-
-                        /*QStringList Roster = accInfoHost->getRoster(account);
-                        QStringList UnblockedList = Unblocked.split("\n");
-                        while(!Roster.isEmpty()) {
-                                QString jid = Roster.takeFirst();
-                                UnblockedList.removeOne(jid);
-                        }
-                        Unblocked = "";
-                        while(!UnblockedList.isEmpty()) {
-                                QString jid = UnblockedList.takeFirst();
-                                if(jid != "") {
-                                        Unblocked += jid + "\n";
-                                }
-                        }
-                        psiOptions->setPluginOption(constUnblocked, QVariant(Unblocked));*/
+                    //qDebug() << "Group: " << child.attribute("jid");
+                    child = child.nextSiblingElement("item");
                 }
+
+                tree_model_list[account] = jidsModel;
+            }
         }
         else if (stanza.tagName() == "message") {
             QString subj = stanza.firstChildElement("subject").text();
@@ -293,7 +277,7 @@ bool MassMailing::incomingStanza(int account, const QDomElement& stanza) {
                     //    SubjText = QString::fromUtf8("Срочное сообщение!: ") + SubjText;
                     //}
                     QMessageBox::warning(0, SubjText,
-                                         "<font size=10 color=red>"+ BodyText+"</font>",
+                                         "<font size=11 color=red>"+ BodyText+"</font>",
                                                     QMessageBox::Ok);
                     return true;
                 }
@@ -301,7 +285,7 @@ bool MassMailing::incomingStanza(int account, const QDomElement& stanza) {
         }
 
     }
-        return false;
+    return false;
 }
 
 void MassMailing::sendMessage(int account, QString jid, QString message, bool imp, QString topic){
@@ -315,14 +299,13 @@ void MassMailing::sendMessage(int account, QString jid, QString message, bool im
 }
 
 bool MassMailing::outgoingStanza(int /*account*/, QDomElement& /*xml*/) {
-	return false;
+    return false;
 }
 
 bool MassMailing::processOutgoingMessage(int acc, const QString &fromJid, QString &body, const QString &type, QString &/*subject*/) {
 
-	return false;
+    return false;
 }
-
 
 
 void MassMailing::close(int width, int height) {
@@ -342,33 +325,32 @@ QString MassMailing::pluginInfo() {
 
 QList < QVariantHash > MassMailing::getAccountMenuParam() {
     QList< QVariantHash > l;
+    //QVariantHash hash;
+    //hash["name"] = QVariant(tr("Mass mailing2!"));
+    //hash["reciver"] = qVariantFromValue(qobject_cast<QObject *>(this));
+    //hash["slot"] = QVariant(SLOT(menuActivated()));
+    //l.push_back(hash);
+    return l;
+}
+
+QList < QVariantHash > MassMailing::getContactMenuParam() {
+    QList< QVariantHash > l;
     QVariantHash hash;
-    hash["name"] = QVariant(tr("Mass mailing2!"));
+    hash["name"] = QVariant(QString::fromUtf8("Массовая рассылка"));
     hash["reciver"] = qVariantFromValue(qobject_cast<QObject *>(this));
     hash["slot"] = QVariant(SLOT(menuActivated()));
     l.push_back(hash);
     return l;
-      //  return QList < QVariantHash >();
-}
-
-QList < QVariantHash > MassMailing::getContactMenuParam() {
-        QList< QVariantHash > l;
-        QVariantHash hash;
-        hash["name"] = QVariant(QString::fromUtf8("Массовая рассылка"));
-        hash["reciver"] = qVariantFromValue(qobject_cast<QObject *>(this));
-        hash["slot"] = QVariant(SLOT(menuActivated()));
-        l.push_back(hash);
-        return l;
 }
 
 void MassMailing::menuActivated() {
-    /*  if(!enabled) {
-                      return;
-      }*/
+      if(!enabled) {
+          return;
+      }
 
       int account_ = sender()->property("account").toInt();
       if(accInfoHost->getStatus(account_) == "offline") {
-              return;
+          return;
       }
 
       if ( tree_model_list.contains(account_) ) {
@@ -379,14 +361,6 @@ void MassMailing::menuActivated() {
 
           send_dlg->exec();
       }
-
-  //    stanzaHost->sendMessage(account_, "dstr@jabber.ru",  "HUI", "StopSpam Question", "chat2");
-
-     // QStringList Roster = accInfoHost->getRoster(account_);
-
-  // qDebug() << Roster;
-
-  //    qDebug() << "menu";
 }
 
 

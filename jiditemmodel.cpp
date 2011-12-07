@@ -7,6 +7,7 @@ JidsViewModel::JidsViewModel(QObject *parent)
 
 }
 
+//При активизации чекбокса - у всех детей чекбокс выставляется такимже как у родителя
 bool JidsViewModel::setData(const QModelIndex & index, const QVariant & value, int role)
 {
     if (role == Qt::CheckStateRole) {
