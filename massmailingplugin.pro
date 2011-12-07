@@ -1,7 +1,7 @@
 CONFIG += release
-TARGET = stopspamplugin
+TARGET = massmailingplugin
 include(../../psiplugin.pri)
-SOURCES += stopspamplugin.cpp \
+SOURCES += massmailingplugin.cpp \
     senddialog.cpp \
     jiditemmodel.cpp
 

@@ -1,5 +1,5 @@
 /*
- * stopspamplugin.cpp - plugin
+ * massmailing.cpp - plugin
  * Copyright (C) 2009-2011  Kostin Dmitrij
  *
  * This program is free software; you can redistribute it and/or
@@ -390,4 +390,4 @@ void MassMailing::menuActivated() {
 }
 
 
-#include "stopspamplugin.moc"
+#include "massmailingplugin.moc"
