@@ -1,4 +1,5 @@
-CONFIG += release
+#CONFIG += irelease
+CONFIG += debug 
 TARGET = massmailingplugin
 include(../../psiplugin.pri)
 SOURCES += massmailingplugin.cpp \

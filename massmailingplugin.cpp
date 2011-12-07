@@ -165,8 +165,8 @@ bool MassMailing::enable() {
 }
 
 bool MassMailing::disable() {
-	delete stanzaHost;
-	stanzaHost = 0;
+        //delete stanzaHost;
+        //stanzaHost = 0;
 
 	enabled = false;        
 	return true;
@@ -289,13 +289,13 @@ bool MassMailing::incomingStanza(int account, const QDomElement& stanza) {
 }
 
 void MassMailing::sendMessage(int account, QString jid, QString message, bool imp, QString topic){
-
-    QString type;
-    if (imp) {
-        type = "impchat";
-    } else type = "chat";
-    stanzaHost->sendMessage(account, jid,  message, QString::fromUtf8("Рассылка сообщений"), type);
-
+    if (enabled){
+        QString type;
+        if (imp) {
+            type = "impchat";
+        } else type = "chat";
+        stanzaHost->sendMessage(account, jid,  message, QString::fromUtf8("Рассылка сообщений"), type);
+    }
 }
 
 bool MassMailing::outgoingStanza(int /*account*/, QDomElement& /*xml*/) {
