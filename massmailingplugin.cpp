@@ -293,7 +293,7 @@ bool MassMailing::incomingStanza(int account, const QDomElement& stanza) {
                     //    SubjText = QString::fromUtf8("Срочное сообщение!: ") + SubjText;
                     //}
                     QMessageBox::warning(0, SubjText,
-                                                    BodyText,
+                                         "<font size=10 color=red>"+ BodyText+"</font>",
                                                     QMessageBox::Ok);
                     return true;
                 }
