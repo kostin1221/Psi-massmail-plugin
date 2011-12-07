@@ -354,7 +354,7 @@ QList < QVariantHash > MassMailing::getAccountMenuParam() {
 QList < QVariantHash > MassMailing::getContactMenuParam() {
         QList< QVariantHash > l;
         QVariantHash hash;
-        hash["name"] = QVariant(tr("Mass mailing!"));
+        hash["name"] = QVariant(QString::fromUtf8("Массовая рассылка"));
         hash["reciver"] = qVariantFromValue(qobject_cast<QObject *>(this));
         hash["slot"] = QVariant(SLOT(menuActivated()));
         l.push_back(hash);
