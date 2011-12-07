@@ -1,6 +1,6 @@
 /*
  * stopspamplugin.cpp - plugin
- * Copyright (C) 2009-2011  Khryukin Evgeny
+ * Copyright (C) 2009-2011  Kostin Dmitrij
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -20,6 +20,7 @@
 
 #include <QAction>
 #include <QStandardItemModel>
+#include <QMessageBox>
 
 #include "psiplugin.h"
 #include "optionaccessor.h"
@@ -47,12 +48,12 @@
 
 #include "deferredstanzasender.h"
 
-#define cVer "0.5.3"
+#define cVer "0.1"
 
 #define POPUP_OPTION "Mass Mailing Plugin"
 
 
-class StopSpam: public QObject, public PsiPlugin, public OptionAccessor, public StanzaSender,  public StanzaFilter,
+class MassMailing: public QObject, public PsiPlugin, public OptionAccessor, public StanzaSender,  public StanzaFilter,
 public AccountInfoAccessor, public ApplicationInfoAccessor, public PopupAccessor, public IconFactoryAccessor,
 public PluginInfoProvider, public EventFilter, public ContactInfoAccessor, public MenuAccessor
 {
@@ -61,7 +62,7 @@ public PluginInfoProvider, public EventFilter, public ContactInfoAccessor, publi
                      PopupAccessor IconFactoryAccessor PluginInfoProvider EventFilter ContactInfoAccessor MenuAccessor)
 
 public:
-	StopSpam();
+        MassMailing();
 	virtual QString name() const;
 	virtual QString shortName() const;
 	virtual QString version() const;
@@ -95,7 +96,7 @@ public:
         virtual QAction* getAccountAction(QObject* , int ) { return 0; }
 
 public slots:
-        void sendMessage(int account, QString jid, QString message, bool imp);
+        void sendMessage(int account, QString jid, QString message, bool imp, QString topic = "");
 private slots:
 	void close(int w, int h);
 	void changeWidgetsState();
@@ -122,9 +123,9 @@ private:
 	Ui::Options ui_;
 };
 
-Q_EXPORT_PLUGIN(StopSpam);
+Q_EXPORT_PLUGIN(MassMailing);
 
-StopSpam::StopSpam()
+MassMailing::MassMailing()
 	: enabled(false)
 	, psiOptions(0)
 	, stanzaHost(0)
@@ -137,23 +138,23 @@ StopSpam::StopSpam()
 {
 }
 
-QString StopSpam::name() const {
+QString MassMailing::name() const {
         return "Mass Mailing Plugin";
 }
 
-QString StopSpam::shortName() const {
+QString MassMailing::shortName() const {
         return "massmailing";
 }
 
-QString StopSpam::version() const {
+QString MassMailing::version() const {
         return cVer;
 }
 
-PsiPlugin::Priority StopSpam::priority() {
+PsiPlugin::Priority MassMailing::priority() {
 	return PriorityHighest;
 }
 
-bool StopSpam::enable() {
+bool MassMailing::enable() {
 	if (psiOptions) {
 		enabled = true;
 
@@ -163,7 +164,7 @@ bool StopSpam::enable() {
 	return enabled;
 }
 
-bool StopSpam::disable() {
+bool MassMailing::disable() {
 	delete stanzaHost;
 	stanzaHost = 0;
 
@@ -171,52 +172,52 @@ bool StopSpam::disable() {
 	return true;
 }
 
-void StopSpam::applyOptions() {
+void MassMailing::applyOptions() {
 	if (!options_)
 		return;
 
 }
 
-void StopSpam::restoreOptions() {
+void MassMailing::restoreOptions() {
 	if (!options_)
 		return;
 
 }
 
-QWidget* StopSpam::options() {
+QWidget* MassMailing::options() {
     return 0;
 }
 
-void StopSpam::setOptionAccessingHost(OptionAccessingHost* host) {
+void MassMailing::setOptionAccessingHost(OptionAccessingHost* host) {
 	psiOptions = host;
 }
 
-void StopSpam::setIconFactoryAccessingHost(IconFactoryAccessingHost* host) {
+void MassMailing::setIconFactoryAccessingHost(IconFactoryAccessingHost* host) {
 	icoHost = host;
 }
 
-void StopSpam::setPopupAccessingHost(PopupAccessingHost* host) {
+void MassMailing::setPopupAccessingHost(PopupAccessingHost* host) {
 	popup = host;
 }
 
-void StopSpam::setStanzaSendingHost(StanzaSendingHost *host) {
+void MassMailing::setStanzaSendingHost(StanzaSendingHost *host) {
     stanzaHost = host;
         ///stanzaHost = new DefferedStanzaSender(host);
 }
 
-void StopSpam::setAccountInfoAccessingHost(AccountInfoAccessingHost* host) {
+void MassMailing::setAccountInfoAccessingHost(AccountInfoAccessingHost* host) {
 	accInfoHost = host;
 }
 
-void StopSpam::setApplicationInfoAccessingHost(ApplicationInfoAccessingHost* host) {
+void MassMailing::setApplicationInfoAccessingHost(ApplicationInfoAccessingHost* host) {
 	appInfoHost = host;
 }
 
-void StopSpam::setContactInfoAccessingHost(ContactInfoAccessingHost *host) {
+void MassMailing::setContactInfoAccessingHost(ContactInfoAccessingHost *host) {
 	contactInfo = host;
 }
 
-bool StopSpam::incomingStanza(int account, const QDomElement& stanza) {
+bool MassMailing::incomingStanza(int account, const QDomElement& stanza) {
     if (enabled) {
         if(stanza.tagName() == "iq") {
                 QDomElement query = stanza.firstChildElement("query");
@@ -280,191 +281,30 @@ bool StopSpam::incomingStanza(int account, const QDomElement& stanza) {
             QString subj = stanza.firstChildElement("subject").text();
             QString type = "";
             type = stanza.attribute("type");
-            return true;
-            QDomElement Body = stanza.firstChildElement("body");
-            if(!Body.isNull()) {
-                QString BodyText = Body.text();
+            //return true;
+            if (type == "impchat"){
+                QDomElement Body = stanza.firstChildElement("body");
+                QDomElement Subj = stanza.firstChildElement("subject");
+                if(!Body.isNull()) {
+                    QString BodyText = Body.text();
+
+                    QString SubjText = QString::fromUtf8("Срочное сообщение!");
+                    ///if (!Subj.isNull()) {
+                    //    SubjText = QString::fromUtf8("Срочное сообщение!: ") + SubjText;
+                    //}
+                    QMessageBox::warning(0, SubjText,
+                                                    BodyText,
+                                                    QMessageBox::Ok);
+                    return true;
+                }
             }
         }
 
     }
-
-//		QString from = stanza.attribute("from");
-//		QString to = stanza.attribute("to");
-//		QString valF = from.split("/").takeFirst();
-//		QString valT = to.split("/").takeFirst();
-
-//		if(valF.toLower() == valT.toLower()
-//			|| valF.toLower() == accInfoHost->getJid(account).toLower())
-//			return false;
-
-//		if(!from.contains("@"))
-//			return false;
-
-//		// Нам необходимо сделать эту проверку здесь,
-//		// иначе мы рискуем вообще ее не сделать
-//		if (stanza.tagName() == "message") {
-//			bool findInvite = false;
-//			QString invFrom;
-//			QDomElement x = stanza.firstChildElement("x");
-//			while(!x.isNull()) {
-//				QDomElement invite = x.firstChildElement("invite");
-//				if(!invite.isNull()) {
-//					findInvite = true;
-//					invFrom = invite.attribute("from");
-//					break;
-//				}
-//				x = x.nextSiblingElement("x");
-//			}
-//			if(findInvite) {  // invite to MUC
-//				QStringList r = accInfoHost->getRoster(account);
-//				if(r.contains(invFrom.split("/").first(), Qt::CaseInsensitive))
-//					return false;
-//				else {
-//					bool findRule = false;
-//					for(int i = 0; i < Jids.size(); i++) {
-//						QString jid_ = Jids.at(i);
-//						if(jid_.isEmpty())
-//							continue;
-//						if(invFrom.contains(jid_, Qt::CaseInsensitive)) {
-//							findRule = true;
-//							if(!selected[i].toBool())
-//								return false;
-//							break;
-//						}
-//					}
-//					if(!findRule && DefaultAct)
-//						return false;
-//					else {
-//						updateCounter(stanza, false);
-//						return true;
-//					}
-//				}
-//			}
-//		}
-
-//		if(contactInfo->isConference(account, valF)
-//			|| contactInfo->isPrivate(account, from)
-//			|| findMucNS(stanza))
-//			{
-//			if(UseMuc)
-//				return processMuc(account, stanza);
-//			else
-//				return false;
-//		}
-
-//		QStringList Roster = accInfoHost->getRoster(account);
-//		if(Roster.isEmpty() || Roster.contains("-1"))
-//			return false;
-//		if(Roster.contains(valF, Qt::CaseInsensitive))
-//			return false;
-
-//		QStringList UnblockedJids = Unblocked.split("\n");
-//		if(UnblockedJids.contains(valF, Qt::CaseInsensitive))
-//			return false;
-
-//		bool findRule = false;
-//		for(int i = 0; i < Jids.size(); i++) {
-//			QString jid_ = Jids.at(i);
-//			if(jid_.isEmpty())
-//				continue;
-//			if(from.contains(jid_, Qt::CaseInsensitive)) {
-//				findRule = true;
-//				if(!selected[i].toBool())
-//					return false;
-//				break;
-//			}
-//		}
-//		if(!findRule && DefaultAct)
-//			return false;
-
-//		if (stanza.tagName() == "message") {
-//			QString subj = stanza.firstChildElement("subject").text();
-//			QString
-
-//			type = stanza.attribute("type");
-//			if(type == "error" && subj == "StopSpam Question") {
-//				updateCounter(stanza, false);
-//				return true;
-//			}
-
-//			if (subj == "AutoReply" || subj == "StopSpam" || subj == "StopSpam Question")
-//				return false;
-
-//			if(type == "groupchat" || type == "error")
-//				return false;
-
-//			QDomElement captcha = stanza.firstChildElement("captcha");
-//			if(!captcha.isNull() && captcha.attribute("xmlns") == "urn:xmpp:captcha")
-//				return false; // CAPTCHA
-
-//			QDomElement Body = stanza.firstChildElement("body");
-//                        qDebug() << Body;
-//                        /*if(!Body.isNull()) {
-//				QString BodyText = Body.text();
-//				if(BodyText == Answer) {
-//					Unblocked += valF + "\n";
-//					psiOptions->setPluginOption(constUnblocked, QVariant(Unblocked));
-//					psiOptions->setPluginOption(constLastUnblock, QVariant(QDate::currentDate().toString("yyyyMMdd")));
-//					stanzaHost->sendMessage(account, from, Congratulation, "StopSpam", "chat");
-//					updateCounter(stanza, true);
-//					if(LogHistory)
-//						logHistory(stanza);
-//					return true;
-//				}
-//				else {
-//					int i = BlockedJids.size();
-//					if(findAcc(account, valF, i)) {
-//						Blocked &B = BlockedJids[i];
-//						if(B.count < Times) {
-//							stanzaHost->sendMessage(account, from,  Question, "StopSpam Question", "chat");
-//							updateCounter(stanza, false);
-//							if(LogHistory)
-//								logHistory(stanza);
-//							B.count++;
-//							B.LastMes = QDateTime::currentDateTime();
-//							return true;
-//						}
-//						else {
-//							if(QDateTime::currentDateTime().secsTo(B.LastMes) >= -ResetTime*60) {
-//								updateCounter(stanza, false);
-//								if(LogHistory)
-//									logHistory(stanza);
-//								return true;
-//							}
-//							else {
-//								B.count = 1;
-//								B.LastMes = QDateTime::currentDateTime();
-//								stanzaHost->sendMessage(account, from,  Question, "StopSpam Question", "chat");
-//								updateCounter(stanza, false);
-//								if(LogHistory)
-//									logHistory(stanza);
-//								return true;
-//							}
-//						}
-//					}
-//					else {
-//						Blocked B = { account, valF, 1, QDateTime::currentDateTime() };
-//						BlockedJids << B;
-//						stanzaHost->sendMessage(account, from,  Question, "StopSpam Question", "chat");
-//						updateCounter(stanza, false);
-//						if(LogHistory)
-//							logHistory(stanza);
-//						return true;
-//					}
-//				}
-//			}
-//			updateCounter(stanza, false);
-//                        */return true;
-//		}
-
-//		return false;
-//	}
-
         return false;
 }
 
-void StopSpam::sendMessage(int account, QString jid, QString message, bool imp){
+void MassMailing::sendMessage(int account, QString jid, QString message, bool imp, QString topic){
 
     QString type;
     if (imp) {
@@ -474,33 +314,33 @@ void StopSpam::sendMessage(int account, QString jid, QString message, bool imp){
 
 }
 
-bool StopSpam::outgoingStanza(int /*account*/, QDomElement& /*xml*/) {
+bool MassMailing::outgoingStanza(int /*account*/, QDomElement& /*xml*/) {
 	return false;
 }
 
-bool StopSpam::processOutgoingMessage(int acc, const QString &fromJid, QString &body, const QString &type, QString &/*subject*/) {
+bool MassMailing::processOutgoingMessage(int acc, const QString &fromJid, QString &body, const QString &type, QString &/*subject*/) {
 
 	return false;
 }
 
 
 
-void StopSpam::close(int width, int height) {
+void MassMailing::close(int width, int height) {
         //Height = height;
         //Width = width;
         //psiOptions->setPluginOption(constHeight, QVariant(Height));
         //psiOptions->setPluginOption(constWidth, QVariant(Width));
 }
 
-void StopSpam::changeWidgetsState() {
+void MassMailing::changeWidgetsState() {
 
 }
 
-QString StopSpam::pluginInfo() {
+QString MassMailing::pluginInfo() {
         return tr("Author: ") +  "Dmitrij Kostin\n";
 }
 
-QList < QVariantHash > StopSpam::getAccountMenuParam() {
+QList < QVariantHash > MassMailing::getAccountMenuParam() {
     QList< QVariantHash > l;
     QVariantHash hash;
     hash["name"] = QVariant(tr("Mass mailing2!"));
@@ -511,7 +351,7 @@ QList < QVariantHash > StopSpam::getAccountMenuParam() {
       //  return QList < QVariantHash >();
 }
 
-QList < QVariantHash > StopSpam::getContactMenuParam() {
+QList < QVariantHash > MassMailing::getContactMenuParam() {
         QList< QVariantHash > l;
         QVariantHash hash;
         hash["name"] = QVariant(tr("Mass mailing!"));
@@ -521,7 +361,7 @@ QList < QVariantHash > StopSpam::getContactMenuParam() {
         return l;
 }
 
-void StopSpam::menuActivated() {
+void MassMailing::menuActivated() {
     /*  if(!enabled) {
                       return;
       }*/
