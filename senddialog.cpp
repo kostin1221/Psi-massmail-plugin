@@ -16,6 +16,15 @@ SendDialog::~SendDialog()
 }
 
 void SendDialog::jidListClick(const QModelIndex & index){
+    QModelIndexList mdllist = index.model()->match( index.model()->index(0,0), Qt::CheckStateRole, 2, -1, Qt::MatchRecursive | Qt::MatchExactly );
+
+    for (int i = 0; i < mdllist.size(); ++i) {
+        QStandardItem *item = static_cast<QStandardItem*>(mdllist.at(i).internalPointer());
+        qDebug() << item->data(Qt::DisplayRole);
+      //  ui->jidsView->g
+
+        //    cout << "Found Jane at position " << i << endl;
+    }
    /* QVariant checked = index.data(Qt::CheckStateRole);
 
     QAbstractItemModel *mdl =  index.model();
