@@ -265,16 +265,26 @@ bool MassMailing::incomingStanza(int account, const QDomElement& stanza) {
             if (type == "impchat"){
                 QDomElement Body = stanza.firstChildElement("body");
                 QDomElement Subj = stanza.firstChildElement("subject");
+                QString from_jid = stanza.attribute("from");
                 if(!Body.isNull()) {
+
                     QString BodyText = Body.text();
 
                     QString SubjText = QString::fromUtf8("Срочное сообщение!");
+
+                    JidsViewModel *model = tree_model_list[account];
+
+
+                    if ( from_jid.contains("/") )
+                        from_jid = from_jid.split("/").at(0);
+                    QString name = model->findNameByJid( from_jid );
                     ///if (!Subj.isNull()) {
                     //    SubjText = QString::fromUtf8("Срочное сообщение!: ") + SubjText;
                     //}
-                    QMessageBox::warning(0, SubjText,
-                                         "<font size=11 color=red>"+ BodyText+"</font>",
-                                                    QMessageBox::Ok);
+
+                    QMessageBox *msg = new QMessageBox(QMessageBox::Warning, SubjText, QString::fromUtf8("От: <font color=red>")+ name + "</font><br>" + BodyText, QMessageBox::Ok, 0, Qt::Dialog | Qt::MSWindowsFixedSizeDialogHint | Qt::WindowStaysOnTopHint );
+                    msg->setFont( QFont( "Arial", 11) );
+                    msg->exec();
                     return true;
                 }
             }

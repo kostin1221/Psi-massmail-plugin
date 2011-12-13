@@ -11,6 +11,8 @@ class JidsViewModel : public QStandardItemModel
 public:
     JidsViewModel(QObject *parent = 0);
     bool setData(const QModelIndex & index, const QVariant & value, int role = Qt::EditRole);
+    QString findNameByJid(QString jid);
+
 
 signals:
 

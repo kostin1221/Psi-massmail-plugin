@@ -21,3 +21,12 @@ bool JidsViewModel::setData(const QModelIndex & index, const QVariant & value, i
 
     return QStandardItemModel::setData(index, value, role);
 }
+
+QString JidsViewModel::findNameByJid(QString jid){
+    QModelIndexList mdllist = match( index(0,0), Qt::UserRole, jid, -1, Qt::MatchRecursive | Qt::MatchExactly );
+
+    if ( mdllist.size() > 0) {
+        QString name = mdllist.at(0).data(Qt::DisplayRole).toString();
+        return name;
+    }    else return jid; //QString::fromUtf8("неизвестного получателя");
+}
