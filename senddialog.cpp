@@ -34,7 +34,7 @@ void SendDialog::sendBtnClick(){
     for (int i = 0; i < mdllist.size(); ++i) {
         //QStandardItem *item = static_cast<QStandardItem*>(mdllist.at(i).internalPointer());
         QString jid = mdllist.at(i).data(Qt::UserRole).toString();
-        if ( jid.indexOf( "@" ) ){
+        if ( jid.contains( "@" ) ){
             sendMessage(account_, jid, ui->messageEditor->toPlainText(), ui->srochnoChk->checkState() == 2);
             //qDebug() << jid;
         }
