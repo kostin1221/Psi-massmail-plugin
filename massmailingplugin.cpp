@@ -281,7 +281,12 @@ bool MassMailing::incomingStanza(int account, const QDomElement& stanza) {
                     ///if (!Subj.isNull()) {
                     //    SubjText = QString::fromUtf8("Срочное сообщение!: ") + SubjText;
                     //}
+                    //qDebug() << BodyText;
 
+//                    BodyText.replace( QRegExp("(http|https)://.*\\b"), "<a href='\\3'>\\3</a>");
+                    BodyText.replace( QRegExp("((http|https)://\\S*)"), "<a href='\\1'>\\1</a>");
+                   // BodyText.replace( QRegExp("(?<!http)\\b.*\\.[\\w]{2,3}/\\S*"), "<a href='\\1'>\\1</a>");
+                    BodyText.replace( QString::fromUtf8("\n"), "<br>");
                     QMessageBox *msg = new QMessageBox(QMessageBox::Warning, SubjText, QString::fromUtf8("От: <font color=red>")+ name + "</font><br>" + BodyText, QMessageBox::Ok, 0, Qt::Dialog | Qt::MSWindowsFixedSizeDialogHint | Qt::WindowStaysOnTopHint );
                     msg->setFont( QFont( "Arial", 11) );
                     msg->exec();
